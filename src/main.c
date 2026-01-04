@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define PORT 8080
 
@@ -28,6 +29,7 @@ int main(void) {
     }
 
     struct sockaddr_in server_address;
+    struct sockaddr_in client_address;
 
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
@@ -47,9 +49,6 @@ int main(void) {
         exit(0);
     }
     
-    struct sockaddr_in client_address;
-    socklen_t client_addrlen = sizeof(client_address);
-
     // Assemble a basic hardcoded HTML file
     const char *html =
         "<!DOCTYPE html>"
@@ -72,22 +71,29 @@ int main(void) {
         strlen(html), html
     );
 
-    // Accept function blocks until a connection has arrived
-    // Creates a new connected socket and a file descriptor to it
-    printf("Waiting for a new connection...\n");
-    printf("Server socket: %d\n", server_socket);
+    int client_socket;
 
-    int new_socket = accept(server_socket, (struct sockaddr*)&client_address, &client_addrlen);
+    while (1) {
+        // Accept function blocks until a connection has arrived
+        // Creates a new connected socket and a file descriptor to it
+        printf("Waiting for a new connection...\n");
 
-    if (new_socket < 0) {
-        perror("Accept failed");
-        exit(0);
+        socklen_t client_addrlen = sizeof(client_address);
+        client_socket = accept(server_socket, (struct sockaddr*)&client_address, &client_addrlen);
+
+        if (client_socket < 0) {
+            perror("Accept failed");
+            continue;
+        }
+
+        printf("Client socket: %d\n", client_socket);
+
+        send(client_socket, message, len, 0);
+        printf("HTML message sent\n");
+
+        close(client_socket);
     }
 
-    send(new_socket, message, len, 0);
-    printf("HTML message sent\n");
-
-    close(new_socket);
     close(server_socket);
 
     return 0;

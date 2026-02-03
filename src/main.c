@@ -73,6 +73,9 @@ int main(void) {
 
     int client_socket;
 
+    char request[4096];
+    ssize_t bytes_read;
+
     while (1) {
         // Accept function blocks until a connection has arrived
         // Creates a new connected socket and a file descriptor to it
@@ -86,7 +89,19 @@ int main(void) {
             continue;
         }
 
+        bytes_read = recv(client_socket, request, sizeof(request) - 1, 0);
+
+        if (bytes_read <= 0) {
+            perror("Read failed");
+            close(client_socket);
+            continue;
+        }
+
+        // Null terminate so we can print
+        request[bytes_read] = '\0';
+
         printf("Client socket: %d\n", client_socket);
+        printf("Request:\n%s\n", request);
 
         send(client_socket, message, len, 0);
         printf("HTML message sent\n");

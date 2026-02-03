@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <signal.h>
+#include "processor.h"
 
 #define PORT 8080
 
@@ -102,6 +103,8 @@ int main(void) {
 
         printf("Client socket: %d\n", client_socket);
         printf("Request:\n%s\n", request);
+
+        process_request(request);
 
         send(client_socket, message, len, 0);
         printf("HTML message sent\n");

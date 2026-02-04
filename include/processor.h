@@ -7,6 +7,8 @@
 
 void process_request(server_connection *server, const char request[]);
 
+void decide_response(char tokens[][256], char message[], int *message_len);
+
 void split(const char input[], int len, char output[][256], char delimeter);
 
 #endif

@@ -7,4 +7,6 @@
 
 void process_request(server_connection *server, const char request[]);
 
+void split(const char input[], int len, char output[][256], char delimeter);
+
 #endif

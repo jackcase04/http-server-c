@@ -32,7 +32,30 @@ void process_request(server_connection *server, const char request[]) {
     // 1. The method
     // 2. The path/resource
     // and decide what to do.
+    char buff[64][256];
+
+    split(request, 4096, buff, ' ');
+    
+    for (int i = 0; i < 10; ++i) {
+        printf("Token number %d: %s\n\n", i, buff[i]);
+    }
 
     send(server->client_socket, message, len, 0);
     printf("HTML message sent\n");
+}
+
+void split(const char input[], int len, char output[][256], char delimeter) {
+    int token_num = 0;
+    int indiv_index = 0;
+
+    for (int i = 0; i < len; ++i) {
+        if (input[i] == delimeter) {
+            token_num++;
+            indiv_index = 0;
+        }
+
+        output[token_num][indiv_index] = input[i];
+
+        indiv_index++;
+    }
 }

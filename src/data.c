@@ -13,6 +13,6 @@ const char *get_resource(const char string[]) {
     if (strcmp(string, "/") == 0) {
         return html;
     } else {
-        return "Not Found";
+        return "";
     }
 }

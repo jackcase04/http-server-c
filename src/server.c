@@ -64,8 +64,11 @@ void start_server(server_connection *server) {
 
         bytes_read = recv(server->client_socket, request, sizeof(request) - 1, 0);
 
-        if (bytes_read <= 0) {
+        if (bytes_read < 0) {
             perror("Read failed");
+            close(server->client_socket);
+            continue;
+        } else if (bytes_read == 0) {
             close(server->client_socket);
             continue;
         }

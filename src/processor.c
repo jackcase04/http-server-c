@@ -62,6 +62,28 @@ void decide_response(char tokens[][256], char message[], int *message_len) {
             );
         }
         
+    } else if (strcmp(tokens[0], "HEAD") == 0) {
+        printf("Token 1: <%s>\n", tokens[1]);
+
+        if (strcmp(tokens[1], "/") == 0) {
+            *message_len = snprintf(message, *message_len,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\r\n"
+                "Content-Length: %zu\r\n"
+                "\r\n",
+                strlen(html)
+            );
+        } else {
+            printf("\nNot Found\n");
+            const char *body = "Not Found";
+            *message_len = snprintf(message, *message_len,
+                "HTTP/1.1 404 Not Found\r\n"
+                "Content-Type: text/plain\r\n"
+                "Content-Length: %zu\r\n"
+                "\r\n",
+                strlen(body)
+            );
+        }
     } else {
         printf("\nNot Implemented\n");
         const char *body = "Not Implemented";

@@ -1,13 +1,5 @@
 #include "processor.h"
 
-const char *html =
-    "<!DOCTYPE html>"
-    "<html>"
-    "<head><title>C Server</title></head>"
-    "<body><h1>Hello from C</h1></body>"
-    "</html>"
-;
-
 void process_request(server_connection *server, const char request[]) {
     // For now, we'll just have this hardcoded here.
     // We can move this later
@@ -41,13 +33,15 @@ void decide_response(char tokens[][256], char message[], int *message_len) {
         printf("Token 1: <%s>\n", tokens[1]);
 
         if (strcmp(tokens[1], "/") == 0) {
+            const char* data = get_resource(tokens[1]);
+
             *message_len = snprintf(message, *message_len,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\r\n"
                 "Content-Length: %zu\r\n"
                 "\r\n"
                 "%s",
-                strlen(html), html
+                strlen(data), data
             );
         } else {
             printf("\nNot Found\n");
@@ -66,12 +60,14 @@ void decide_response(char tokens[][256], char message[], int *message_len) {
         printf("Token 1: <%s>\n", tokens[1]);
 
         if (strcmp(tokens[1], "/") == 0) {
+            const char* data = get_resource(tokens[1]);
+
             *message_len = snprintf(message, *message_len,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\r\n"
                 "Content-Length: %zu\r\n"
                 "\r\n",
-                strlen(html)
+                strlen(data)
             );
         } else {
             printf("\nNot Found\n");

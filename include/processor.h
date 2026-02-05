@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "types.h"
+#include "data.h"
 
 void process_request(server_connection *server, const char request[]);
 

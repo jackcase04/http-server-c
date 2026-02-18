@@ -1,52 +1,52 @@
 #include "processor.h"
 
 void process_request(server_connection *server, const char request[]) {
-    // For now, we'll just have this hardcoded here.
-    // We can move this later
-    // Assemble a basic hardcoded HTML file
-
-    char message[1024];
-    int message_len = sizeof(message);
 
     printf("Client socket: %d\n", server->client_socket);
     printf("Request:\n%s\n", request);
 
-    // What were gonna need to do here is parse:
-    // 1. The method
-    // 2. The path/resource
-    // and decide what to do.
     char tokens[64][256];
     split(request, tokens, ' ');
 
-    decide_response(tokens, message, &message_len);
+    decide_response(server, tokens);
 
-    send(server->client_socket, message, message_len, 0);
+    // send(server->client_socket, message, message_len, 0);
 }
 
-void decide_response(char tokens[][256], char message[], int *message_len) {
+void decide_response(server_connection *server, char tokens[][256]) {
+    char headers[1024];
+    int headers_len = sizeof(headers);
     // First, parse method
-    // For now we only implement GET
+    // For now we only implement GET and HEAD
+    char *path = tokens[1];
+
     if (strcmp(tokens[0], "GET") == 0) {
-        // Use snprintf() function to construct our HTTP response with our "HTML file"
-        // (%zu is replaced with strlen(html), and %s is replaced with html)
-        
-        printf("Token 1: <%s>\n", tokens[1]);
 
-        if (strcmp(tokens[1], "/") == 0) {
-            const char* data = get_resource(tokens[1]);
+        if (check_resource_exists(path) == EXIT_SUCCESS) {
 
-            *message_len = snprintf(message, *message_len,
+            size_t file_buff_len = get_file_size(path);
+            printf("File size: %zu\n", file_buff_len);
+
+            // Allocate enough memory for the file
+            char *file_buf = malloc(file_buff_len);
+            get_resource(path, file_buf, file_buff_len);
+
+            headers_len = snprintf(headers, headers_len,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\r\n"
                 "Content-Length: %zu\r\n"
-                "\r\n"
-                "%s",
-                strlen(data), data
+                "\r\n",
+                strlen(file_buf)
             );
+
+            send(server->client_socket, headers, headers_len, 0);
+            send(server->client_socket, file_buf, file_buff_len, 0);
+
+            free(file_buf);
+
         } else {
-            printf("\nNot Found\n");
-            const char *body = "Not Found";
-            *message_len = snprintf(message, *message_len,
+            const char body[] = "Not Found";
+            headers_len = snprintf(headers, headers_len,
                 "HTTP/1.1 404 Not Found\r\n"
                 "Content-Type: text/plain\r\n"
                 "Content-Length: %zu\r\n"
@@ -54,36 +54,42 @@ void decide_response(char tokens[][256], char message[], int *message_len) {
                 "%s",
                 strlen(body), body
             );
+
+            send(server->client_socket, headers, headers_len, 0);
         }
         
     } else if (strcmp(tokens[0], "HEAD") == 0) {
         printf("Token 1: <%s>\n", tokens[1]);
 
-        if (strcmp(tokens[1], "/") == 0) {
-            const char* data = get_resource(tokens[1]);
+        if (check_resource_exists(path) == EXIT_SUCCESS) {
+            size_t file_buff_len = get_file_size(path);
 
-            *message_len = snprintf(message, *message_len,
+            headers_len = snprintf(headers, headers_len,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\r\n"
                 "Content-Length: %zu\r\n"
                 "\r\n",
-                strlen(data)
+                file_buff_len
             );
+
+            send(server->client_socket, headers, headers_len, 0);
         } else {
             printf("\nNot Found\n");
             const char *body = "Not Found";
-            *message_len = snprintf(message, *message_len,
+            headers_len = snprintf(headers, headers_len,
                 "HTTP/1.1 404 Not Found\r\n"
                 "Content-Type: text/plain\r\n"
                 "Content-Length: %zu\r\n"
                 "\r\n",
                 strlen(body)
             );
+
+            send(server->client_socket, headers, headers_len, 0);
         }
     } else {
         printf("\nNot Implemented\n");
         const char *body = "Not Implemented";
-        *message_len = snprintf(message, *message_len,
+        headers_len = snprintf(headers, headers_len,
             "HTTP/1.1 501 Not Implemented\r\n"
             "Content-Type: text/plain\r\n"
             "Content-Length: %zu\r\n"
@@ -91,6 +97,8 @@ void decide_response(char tokens[][256], char message[], int *message_len) {
             "%s",
             strlen(body), body
         );
+
+        send(server->client_socket, headers, headers_len, 0);
     }
 }
 

@@ -16,89 +16,60 @@ void process_request(server_connection *server, const char request[]) {
 void decide_response(server_connection *server, char tokens[][256]) {
     char headers[1024];
     int headers_len = sizeof(headers);
-    // First, parse method
-    // For now we only implement GET and HEAD
     char *path = tokens[1];
+    char *file_buf = NULL;
+    size_t file_buff_len = 0;
+    int HTTP_response_code = 0;
+    char HTTP_message[64];
 
     if (strcmp(tokens[0], "GET") == 0) {
 
         if (check_resource_exists(path) == EXIT_SUCCESS) {
 
-            size_t file_buff_len = get_file_size(path);
-            printf("File size: %zu\n", file_buff_len);
+            file_buff_len = get_file_size(path);
 
             // Allocate enough memory for the file
-            char *file_buf = malloc(file_buff_len);
+            file_buf = malloc(file_buff_len);
             get_resource(path, file_buf, file_buff_len);
 
-            headers_len = snprintf(headers, headers_len,
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\r\n"
-                "Content-Length: %zu\r\n"
-                "\r\n",
-                strlen(file_buf)
-            );
-
-            send(server->client_socket, headers, headers_len, 0);
-            send(server->client_socket, file_buf, file_buff_len, 0);
-
-            free(file_buf);
-
+            HTTP_response_code = 200;
+            strcpy(HTTP_message, "OK");
         } else {
-            const char body[] = "Not Found";
-            headers_len = snprintf(headers, headers_len,
-                "HTTP/1.1 404 Not Found\r\n"
-                "Content-Type: text/plain\r\n"
-                "Content-Length: %zu\r\n"
-                "\r\n"
-                "%s",
-                strlen(body), body
-            );
-
-            send(server->client_socket, headers, headers_len, 0);
+            HTTP_response_code = 404;
+            strcpy(HTTP_message, "Not Found");
         }
         
     } else if (strcmp(tokens[0], "HEAD") == 0) {
-        printf("Token 1: <%s>\n", tokens[1]);
 
         if (check_resource_exists(path) == EXIT_SUCCESS) {
-            size_t file_buff_len = get_file_size(path);
+            file_buff_len = get_file_size(path);
 
-            headers_len = snprintf(headers, headers_len,
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\r\n"
-                "Content-Length: %zu\r\n"
-                "\r\n",
-                file_buff_len
-            );
-
-            send(server->client_socket, headers, headers_len, 0);
+            HTTP_response_code = 200;
+            strcpy(HTTP_message, "OK");
         } else {
-            printf("\nNot Found\n");
-            const char *body = "Not Found";
-            headers_len = snprintf(headers, headers_len,
-                "HTTP/1.1 404 Not Found\r\n"
-                "Content-Type: text/plain\r\n"
-                "Content-Length: %zu\r\n"
-                "\r\n",
-                strlen(body)
-            );
-
-            send(server->client_socket, headers, headers_len, 0);
+            HTTP_response_code = 404;
+            strcpy(HTTP_message, "Not Found");
         }
     } else {
-        printf("\nNot Implemented\n");
-        const char *body = "Not Implemented";
-        headers_len = snprintf(headers, headers_len,
-            "HTTP/1.1 501 Not Implemented\r\n"
-            "Content-Type: text/plain\r\n"
-            "Content-Length: %zu\r\n"
-            "\r\n"
-            "%s",
-            strlen(body), body
-        );
+        HTTP_response_code = 501;
+        strcpy(HTTP_message, "Not Implemented");
+    }
 
-        send(server->client_socket, headers, headers_len, 0);
+    headers_len = snprintf(headers, headers_len,
+        "HTTP/1.1 %d %s\r\n"
+        "Content-Type: text/html\r\n"
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n"
+        "\r\n",
+        HTTP_response_code, HTTP_message, file_buff_len
+    );
+
+    send(server->client_socket, headers, headers_len, 0);
+
+    // If there is a body to send, send it too
+    if (file_buf != NULL) {
+        send(server->client_socket, file_buf, file_buff_len, 0);
+        free(file_buf);
     }
 }
 

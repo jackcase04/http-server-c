@@ -9,12 +9,18 @@ int check_resource_exists(const char string[]) {
 }
 
 int get_resource(char string[], char file_buff[], int len) {
+    transform_path(string);
+
     FILE *ptr = fopen(string, "rb");
 
-    fread(file_buff, 1, len, ptr);
-    fclose(ptr);
+    if (ptr != NULL) {
+        fread(file_buff, 1, len, ptr);
+        fclose(ptr);
 
-    return EXIT_SUCCESS;
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
 }
 
 size_t get_file_size(char string[]) {
@@ -23,12 +29,16 @@ size_t get_file_size(char string[]) {
     printf("File name: %s\n", string);
 
     FILE *ptr = fopen(string, "rb");
+    
+    if (ptr != NULL) {
+        // Get the length of the file using fseek()
+        fseek(ptr, 0, SEEK_END);
+        size_t len = ftell(ptr);
 
-    // Get the length of the file using fseek()
-    fseek(ptr, 0, SEEK_END);
-    size_t len = ftell(ptr);
-
-    return len;
+        return len;
+    } else {
+        return EXIT_FAILURE;
+    }
 }
 
 int transform_path(char string[]) {

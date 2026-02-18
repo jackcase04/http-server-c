@@ -35,6 +35,8 @@ size_t get_file_size(char string[]) {
         fseek(ptr, 0, SEEK_END);
         size_t len = ftell(ptr);
 
+        fclose(ptr);
+
         return len;
     } else {
         return EXIT_FAILURE;

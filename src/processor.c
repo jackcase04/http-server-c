@@ -20,7 +20,7 @@ void decide_response(server_connection *server, char tokens[][256]) {
     int HTTP_response_code = 0;
     char HTTP_message[64];
 
-    if (strcmp(tokens[0], "GET") == 0) {
+    if (strcmp(tokens[0], "GET") == EXIT_SUCCESS) {
 
         if (check_resource_exists(path) == EXIT_SUCCESS) {
 
@@ -37,7 +37,7 @@ void decide_response(server_connection *server, char tokens[][256]) {
             strcpy(HTTP_message, "Not Found");
         }
         
-    } else if (strcmp(tokens[0], "HEAD") == 0) {
+    } else if (strcmp(tokens[0], "HEAD") == EXIT_SUCCESS) {
 
         if (check_resource_exists(path) == EXIT_SUCCESS) {
             file_buff_len = get_file_size(path);

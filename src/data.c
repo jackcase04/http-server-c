@@ -1,7 +1,9 @@
 #include "data.h"
 
 int check_resource_exists(const char string[]) {
-    if (strcmp(string, "/") == 0) {
+    if (
+        strcmp(string, "/") == EXIT_SUCCESS
+    ) {
         return EXIT_SUCCESS;
     } else {
         return EXIT_FAILURE;
@@ -44,8 +46,11 @@ size_t get_file_size(char string[]) {
 }
 
 int transform_path(char string[]) {
-    if (strcmp(string, "/") == 0) {
+    if (strcmp(string, "/") == EXIT_SUCCESS) {
         strcpy(string, "public/index.html");
+        return EXIT_SUCCESS;
+    } else if (strcmp(string, "/login") == EXIT_SUCCESS) {
+        strcpy(string, "public/login.html");
         return EXIT_SUCCESS;
     } else {
         // printf("Did not transform.\n");

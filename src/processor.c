@@ -2,15 +2,13 @@
 
 void process_request(server_connection *server, const char request[]) {
 
-    printf("Client socket: %d\n", server->client_socket);
-    printf("Request:\n%s\n", request);
+    // printf("Client socket: %d\n", server->client_socket);
+    // printf("Request:\n%s\n", request);
 
     char tokens[64][256];
     split(request, tokens, ' ');
 
     decide_response(server, tokens);
-
-    // send(server->client_socket, message, message_len, 0);
 }
 
 void decide_response(server_connection *server, char tokens[][256]) {
@@ -54,6 +52,11 @@ void decide_response(server_connection *server, char tokens[][256]) {
         HTTP_response_code = 501;
         strcpy(HTTP_message, "Not Implemented");
     }
+
+    printf("Method Received: %s\n", tokens[0]);
+    printf("Request Path: %s\n\n", path);
+
+    printf("Returning: %d %s\n\n", HTTP_response_code, HTTP_message);
 
     headers_len = snprintf(headers, headers_len,
         "HTTP/1.1 %d %s\r\n"

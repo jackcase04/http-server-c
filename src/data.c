@@ -26,7 +26,7 @@ int get_resource(char string[], char file_buff[], int len) {
 size_t get_file_size(char string[]) {
     transform_path(string);
 
-    printf("File name: %s\n", string);
+    // printf("File name: %s\n", string);
 
     FILE *ptr = fopen(string, "rb");
     
@@ -46,7 +46,7 @@ int transform_path(char string[]) {
         strcpy(string, "public/index.html");
         return EXIT_SUCCESS;
     } else {
-        printf("Did not transform.\n");
+        // printf("Did not transform.\n");
     }
 
     return EXIT_SUCCESS;

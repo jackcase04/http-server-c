@@ -49,11 +49,11 @@ void start_server(server_connection *server) {
     ssize_t bytes_read;
     char request[4096];
 
+    printf("Server listening on IP: %s Port: %d\n\n", inet_ntoa(server->server_address.sin_addr), PORT);
+
     while (1) {
         // Accept function blocks until a connection has arrived
         // Creates a new connected socket and a file descriptor to it
-        printf("Waiting for a new connection...\n");
-
         socklen_t client_addrlen = sizeof(server->client_address);
         server->client_socket = accept(server->server_socket, (struct sockaddr*)&server->client_address, &client_addrlen);
 

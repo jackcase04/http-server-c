@@ -1,5 +1,7 @@
 #include "server.h"
 
+const int TIMEOUT_TIME = 100;
+
 server_connection setup_server() {
     server_connection server;
 
@@ -64,7 +66,7 @@ void start_server(server_connection *server) {
         }
 
         struct pollfd pfd = { .fd = server->client_socket, .events = POLLIN };
-        int ready = poll(&pfd, 1, 500);
+        int ready = poll(&pfd, 1, TIMEOUT_TIME);
 
         if (ready != 0 && pfd.revents & POLLIN) {
             bytes_read = recv(server->client_socket, request, sizeof(request) - 1, 0);
@@ -84,7 +86,7 @@ void start_server(server_connection *server) {
             process_request(server, request);
 
         } else {
-            printf("Socket timeout, 0.5 sec with no request\n");
+            printf("Socket timeout, %d ms with no request\n", TIMEOUT_TIME);
         }
 
         close(server->client_socket);

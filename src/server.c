@@ -55,28 +55,45 @@ void start_server(server_connection *server) {
         // Accept function blocks until a connection has arrived
         // Creates a new connected socket and a file descriptor to it
         socklen_t client_addrlen = sizeof(server->client_address);
+
+        printf("Have not accepted yet\n");
         server->client_socket = accept(server->server_socket, (struct sockaddr*)&server->client_address, &client_addrlen);
+        printf("Just accepted client: %d\n", server->client_socket);
 
         if (server->client_socket < 0) {
             perror("Accept failed");
             continue;
         }
 
-        bytes_read = recv(server->client_socket, request, sizeof(request) - 1, 0);
+        printf("Before Reading \n");
+        // poll(server->client_socket, )
+        // bytes_read = recv(server->client_socket, request, sizeof(request) - 1, 0);
 
-        if (bytes_read < 0) {
-            perror("Read failed");
-            close(server->client_socket);
-            continue;
-        } else if (bytes_read == 0) {
-            close(server->client_socket);
-            continue;
+        struct pollfd pfd = { .fd = server->client_socket, .events = POLLIN };
+        int ready = poll(&pfd, 1, 500);
+
+        if (ready != 0 && pfd.revents & POLLIN) {
+            bytes_read = recv(server->client_socket, request, sizeof(request) - 1, 0);
+
+            // Null terminate so we can print
+            request[bytes_read] = '\0';
+            printf("After reading.\nRequest: %s\nBytes read: %ld\n", request, bytes_read);
+
+            if (bytes_read < 0) {
+                perror("Read failed");
+                close(server->client_socket);
+                continue;
+            } else if (bytes_read == 0) {
+                close(server->client_socket);
+                continue;
+            }
+
+            process_request(server, request);
+
+            printf("Made it past process request\n");
+        } else {
+            printf("Socket timeout, 0.5 sec with no request\n");
         }
-
-        // Null terminate so we can print
-        request[bytes_read] = '\0';
-
-        process_request(server, request);
 
         close(server->client_socket);
     }

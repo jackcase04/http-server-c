@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <signal.h>
+#include <poll.h>
 #include <arpa/inet.h>
 #include "processor.h"
 #include "types.h"

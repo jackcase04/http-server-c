@@ -12,8 +12,10 @@
 #include "processor.h"
 #include "types.h"
 
-server_connection setup_server();
+Server setup_server();
 
-void start_server(server_connection *server);
+// void add_callback(Server *server, EventType event, void (*callback)(Request));
+
+void start_server(Server *server);
 
 #endif

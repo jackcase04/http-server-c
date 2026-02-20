@@ -3,7 +3,7 @@
 
 int main(void) {
 
-    server_connection http_server = setup_server();
+    Server http_server = setup_server();
     start_server(&http_server);
 
     return 0;

@@ -8,7 +8,6 @@
 
 typedef struct {
     int client_socket;
-    struct sockaddr_in client_address;
     socklen_t client_addrlen;
     char message[4096];
 } Request;

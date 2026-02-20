@@ -4,10 +4,6 @@ void process_request(Request *request) {
     char tokens[64][256];
     split(request->message, tokens, ' ');
 
-    for (int i = 0; i < 5; ++i) {
-        printf("Token %d: %s \n", i, tokens[i]);
-    }
-
     char headers[1024];
     int headers_len = sizeof(headers);
     char *path = tokens[1];

@@ -1,17 +1,9 @@
 #include "processor.h"
 
-void process_request(server_connection *server, const char request[]) {
-
-    // printf("Client socket: %d\n", server->client_socket);
-    // printf("Request:\n%s\n", request);
-
+void process_request(Request *request) {
     char tokens[64][256];
-    split(request, tokens, ' ');
+    split(request->message, tokens, ' ');
 
-    decide_response(server, tokens);
-}
-
-void decide_response(server_connection *server, char tokens[][256]) {
     char headers[1024];
     int headers_len = sizeof(headers);
     char *path = tokens[1];
@@ -67,11 +59,11 @@ void decide_response(server_connection *server, char tokens[][256]) {
         HTTP_response_code, HTTP_message, file_buff_len
     );
 
-    send(server->client_socket, headers, headers_len, 0);
+    send(request->client_socket, headers, headers_len, 0);
 
     // If there is a body to send, send it too
     if (file_buf != NULL) {
-        send(server->client_socket, file_buf, file_buff_len, 0);
+        send(request->client_socket, file_buf, file_buff_len, 0);
         free(file_buf);
     }
 }

@@ -24,4 +24,4 @@ make clean
 
 #### TODO
 
-- [ ] Handle concurrent client requests
+- [*] Handle concurrent client requests

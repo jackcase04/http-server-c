@@ -9,11 +9,12 @@
 #include <signal.h>
 #include <poll.h>
 #include <arpa/inet.h>
+#include <sys/epoll.h>
 #include "processor.h"
 #include "types.h"
 
-server_connection setup_server();
+Server setup_server();
 
-void start_server(server_connection *server);
+void start_server(Server *server);
 
 #endif

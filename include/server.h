@@ -9,12 +9,11 @@
 #include <signal.h>
 #include <poll.h>
 #include <arpa/inet.h>
+#include <sys/epoll.h>
 #include "processor.h"
 #include "types.h"
 
 Server setup_server();
-
-// void add_callback(Server *server, EventType event, void (*callback)(Request));
 
 void start_server(Server *server);
 

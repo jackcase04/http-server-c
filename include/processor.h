@@ -10,4 +10,6 @@ void process_request(Request *request);
 
 void split(const char input[], char output[][256], char delimeter);
 
+HTTP_Method get_http_method(char string[]);
+
 #endif

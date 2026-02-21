@@ -6,43 +6,44 @@ void process_request(Request *request) {
 
     char headers[1024];
     int headers_len = sizeof(headers);
-    char *path = tokens[1];
-    char *file_buf = NULL;
-    size_t file_buff_len = 0;
+    
     int HTTP_response_code = 0;
     char HTTP_message[64];
+    File_instance *file = NULL;
 
-    if (strcmp(tokens[0], "GET") == EXIT_SUCCESS) {
+    HTTP_Method method = get_http_method(tokens[0]);
+    char *path = tokens[1];
 
-        if (check_resource_exists(path) == EXIT_SUCCESS) {
+    switch (method) {
+        case GET:
+            // Get the resource and read it into the file buffer
+            // get_resource allocates the required memory for the file
+            file = get_resource(path);
 
-            file_buff_len = get_file_size(path);
+            if (file != NULL) {
+                HTTP_response_code = 200;
+                strcpy(HTTP_message, "OK");
+            } else {
+                HTTP_response_code = 404;
+                strcpy(HTTP_message, "Not Found");
+            }
 
-            // Allocate enough memory for the file
-            file_buf = malloc(file_buff_len);
-            get_resource(path, file_buf, file_buff_len);
+            break;
+        case HEAD:
+            file = get_file_size(path);
 
-            HTTP_response_code = 200;
-            strcpy(HTTP_message, "OK");
-        } else {
-            HTTP_response_code = 404;
-            strcpy(HTTP_message, "Not Found");
-        }
-        
-    } else if (strcmp(tokens[0], "HEAD") == EXIT_SUCCESS) {
+            if (file != NULL) {
+                HTTP_response_code = 200;
+                strcpy(HTTP_message, "OK");
+            } else {
+                HTTP_response_code = 404;
+                strcpy(HTTP_message, "Not Found");
+            }
 
-        if (check_resource_exists(path) == EXIT_SUCCESS) {
-            file_buff_len = get_file_size(path);
-
-            HTTP_response_code = 200;
-            strcpy(HTTP_message, "OK");
-        } else {
-            HTTP_response_code = 404;
-            strcpy(HTTP_message, "Not Found");
-        }
-    } else {
-        HTTP_response_code = 501;
-        strcpy(HTTP_message, "Not Implemented");
+            break;
+        default:
+            HTTP_response_code = 501;
+            strcpy(HTTP_message, "Not Implemented");
     }
 
     printf("Method Received: %s\n", tokens[0]);
@@ -56,15 +57,19 @@ void process_request(Request *request) {
         "Content-Length: %zu\r\n"
         "Connection: close\r\n"
         "\r\n",
-        HTTP_response_code, HTTP_message, file_buff_len
+        HTTP_response_code, HTTP_message, file != NULL? file->file_buff_len : 0
     );
 
     send(request->client_socket, headers, headers_len, 0);
 
-    // If there is a body to send, send it too
-    if (file_buf != NULL) {
-        send(request->client_socket, file_buf, file_buff_len, 0);
-        free(file_buf);
+    if (file != NULL) {
+        // If there is a body to send, send it too
+        if (file->data != NULL) {
+            send(request->client_socket, file->data, file->file_buff_len, 0);
+            free(file->data);
+        }
+
+        free(file);
     }
 }
 
@@ -98,4 +103,10 @@ void split(const char input[], char output[][256], char delimeter) {
     if (token_num < 64) {
         output[token_num][indiv_index] = '\0';
     }
+}
+
+HTTP_Method get_http_method(char string[]) {
+    if (strcmp(string, "GET") == EXIT_SUCCESS) return GET;
+    if (strcmp(string, "HEAD") == EXIT_SUCCESS) return HEAD;
+    return UNKNOWN;
 }

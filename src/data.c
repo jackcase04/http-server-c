@@ -1,47 +1,50 @@
 #include "data.h"
 
-int check_resource_exists(const char string[]) {
-    if (
-        strcmp(string, "/") == EXIT_SUCCESS
-    ) {
-        return EXIT_SUCCESS;
-    } else {
-        return EXIT_FAILURE;
-    }
-}
-
-int get_resource(char string[], char file_buff[], int len) {
+File_instance *get_resource(char string[]) {
     transform_path(string);
 
+    printf("Trying to open %s\n", string);
     FILE *ptr = fopen(string, "rb");
 
+    // If the file cannot be opened, NULL is returned and no memory is allocated
     if (ptr != NULL) {
-        fread(file_buff, 1, len, ptr);
+        File_instance *file = malloc(sizeof(File_instance));
+
+        // Get the length of the file using fseek()
+        fseek(ptr, 0, SEEK_END);
+        file->file_buff_len = ftell(ptr);
+        // Seek back to beginning
+        fseek(ptr, 0L, SEEK_SET);
+
+        file->data = malloc(file->file_buff_len);
+
+        fread(file->data, 1, file->file_buff_len, ptr);
         fclose(ptr);
 
-        return EXIT_SUCCESS;
+        return file;
     } else {
-        return EXIT_FAILURE;
+        return NULL;
     }
 }
 
-size_t get_file_size(char string[]) {
+File_instance *get_file_size(char string[]) {
     transform_path(string);
-
-    // printf("File name: %s\n", string);
 
     FILE *ptr = fopen(string, "rb");
     
     if (ptr != NULL) {
+        File_instance *file = malloc(sizeof(File_instance));
+        file->data = NULL;
+
         // Get the length of the file using fseek()
         fseek(ptr, 0, SEEK_END);
-        size_t len = ftell(ptr);
+        file->file_buff_len = ftell(ptr);
 
         fclose(ptr);
 
-        return len;
+        return file;
     } else {
-        return EXIT_FAILURE;
+        return NULL;
     }
 }
 

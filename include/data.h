@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "types.h"
 
-// This function enforces the files that the users can access
-int check_resource_exists(const char string[]);
+// IMPORTANT: This function allocates memory to store the file in a buffer
+// Caller MUST free the memory once done using it.
+// This function gets the file from disk
+File_instance *get_resource(char string[]);
 
-// This function actually gets the file from disk
-int get_resource(char string[], char file_buff[], int len);
-
-size_t get_file_size(char string[]);
+File_instance *get_file_size(char string[]);
 
 int transform_path(char string[]);
 

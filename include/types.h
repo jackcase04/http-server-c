@@ -18,4 +18,15 @@ typedef struct {
     void (*cb_arr[1]) (Request *);
 } Server;
 
+typedef enum {
+    GET,
+    HEAD,
+    UNKNOWN
+} HTTP_Method;
+
+typedef struct {
+    char *data;
+    size_t file_buff_len;
+} File_instance;
+
 #endif

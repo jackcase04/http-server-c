@@ -130,6 +130,4 @@ void start_server(Server *server) {
             }
         }
     }
-
-    close(server->server_socket_fd);
 }

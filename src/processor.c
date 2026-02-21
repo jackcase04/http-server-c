@@ -18,32 +18,70 @@ void process_request(Request *request) {
 
     switch (method) {
         case GET:
-            // Get the resource and read it into the file buffer
-            // get_resource allocates the required memory for the file
-            file = get_resource(path, &HTTP_response_code);
+            switch (resolve_path(path))
+            {
+            case OK:
+                // Get the resource and read it into the file buffer
+                // get_resource allocates the required memory for the file
+                file = get_resource(path);
 
-            if (file != NULL) {
-                HTTP_response_code = 200;
-                strcpy(HTTP_message, "OK");
-            } else if (HTTP_response_code == 403) {
-                strcpy(HTTP_message, "Forbidden");
-            } else {
+                if (file != NULL) {
+                    HTTP_response_code = 200;
+                    strcpy(HTTP_message, "OK");
+                } else {
+                    HTTP_response_code = 404;
+                    strcpy(HTTP_message, "Not Found");
+                }
+
+                break;
+            
+            case NOT_FOUND:
                 HTTP_response_code = 404;
                 strcpy(HTTP_message, "Not Found");
+
+                break;
+
+            case FORBIDDEN:
+                HTTP_response_code = 404;
+                strcpy(HTTP_message, "Forbidden");
+
+                break;
+
+            default:
+                break;
             }
 
             break;
         case HEAD:
-            file = get_file_size(path, &HTTP_response_code);
+            switch (resolve_path(path))
+            {
+            case OK:
+                file = get_file_size(path);
 
-            if (file != NULL) {
-                HTTP_response_code = 200;
-                strcpy(HTTP_message, "OK");
-            } else if (HTTP_response_code == 403) {
-                strcpy(HTTP_message, "Forbidden");
-            } else {
+                if (file != NULL) {
+                    HTTP_response_code = 200;
+                    strcpy(HTTP_message, "OK");
+                } else {
+                    HTTP_response_code = 404;
+                    strcpy(HTTP_message, "Not Found");
+                }
+
+                break;
+            
+            case NOT_FOUND:
                 HTTP_response_code = 404;
                 strcpy(HTTP_message, "Not Found");
+
+                break;
+
+            case FORBIDDEN:
+                HTTP_response_code = 404;
+                strcpy(HTTP_message, "Forbidden");
+
+                break;
+
+            default:
+                break;
             }
 
             break;

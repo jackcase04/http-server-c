@@ -27,6 +27,12 @@ typedef enum {
     UNKNOWN
 } HTTP_Method;
 
+typedef enum {
+    OK,
+    NOT_FOUND,
+    FORBIDDEN
+} HTTP_Status;
+
 typedef struct {
     char *data;
     size_t file_buff_len;

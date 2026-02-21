@@ -5,6 +5,9 @@
 
 #define PORT 8080
 #define MESSAGE_SIZE 4096
+#define PATH_MAX 4096
+
+extern char WEB_ROOT[PATH_MAX];
 
 typedef struct {
     int client_socket;

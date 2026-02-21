@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "processor.h"
 
 void process_request(Request *request) {
@@ -18,11 +20,13 @@ void process_request(Request *request) {
         case GET:
             // Get the resource and read it into the file buffer
             // get_resource allocates the required memory for the file
-            file = get_resource(path);
+            file = get_resource(path, &HTTP_response_code);
 
             if (file != NULL) {
                 HTTP_response_code = 200;
                 strcpy(HTTP_message, "OK");
+            } else if (HTTP_response_code == 403) {
+                strcpy(HTTP_message, "Forbidden");
             } else {
                 HTTP_response_code = 404;
                 strcpy(HTTP_message, "Not Found");
@@ -30,11 +34,13 @@ void process_request(Request *request) {
 
             break;
         case HEAD:
-            file = get_file_size(path);
+            file = get_file_size(path, &HTTP_response_code);
 
             if (file != NULL) {
                 HTTP_response_code = 200;
                 strcpy(HTTP_message, "OK");
+            } else if (HTTP_response_code == 403) {
+                strcpy(HTTP_message, "Forbidden");
             } else {
                 HTTP_response_code = 404;
                 strcpy(HTTP_message, "Not Found");

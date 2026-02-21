@@ -25,7 +25,7 @@ make clean
 #### TODO
 
 - [x] Handle concurrent client requests
-- [x] Allow filesystem access beyond a whitelist
-    - Considering security
+- [x] Allow dynamic access to any file in `public` folder
+    - Considering security (path traversal, etc)
 - [ ] Strengthen parsing of HTTP request
     - Include parsing headers, etc

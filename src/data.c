@@ -72,8 +72,6 @@ HTTP_Status resolve_path(char string[]) {
     // Transform / to /index.html
     if (strcmp(resolved, WEB_ROOT) == 0) {
         snprintf(string, PATH_MAX+11, "%s/index.html", WEB_ROOT);
-    } else {
-        strcpy(string, resolved);
     }
 
     return OK;

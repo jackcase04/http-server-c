@@ -42,7 +42,7 @@ void process_request(Request *request) {
                 break;
 
             case FORBIDDEN:
-                HTTP_response_code = 404;
+                HTTP_response_code = 403;
                 strcpy(HTTP_message, "Forbidden");
 
                 break;
